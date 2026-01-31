@@ -13,6 +13,7 @@
     "url": "https://github.com/PanGan21/cursor-token-saver/issues"
   },
   "homepage": "https://github.com/PanGan21/cursor-token-saver#readme",
+  "icon": "images/icon.png",
   "engines": {
     "vscode": "^1.85.0"
   },

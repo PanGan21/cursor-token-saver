@@ -20,15 +20,23 @@ Cursor does **not** currently allow extensions to intercept AI requests. This ex
   - `Cursor: Copy Diff-Only Context`
   - `Cursor: Estimate Tokens`
 
-## Workflow diagram
+## Workflow
 
-```mermaid
-flowchart TD
-  A["Open file / select code"] --> B["Status bar shows ~token estimate"]
-  B --> C["Click status bar -> quick pick"]
-  C --> D["Prepare context (compress / diff / keep)"]
-  D --> E["Copied to clipboard"]
-  E --> F["Paste into Cursor Chat"]
+This README is rendered in places where Mermaid isn’t supported (like the VS Code Marketplace),
+so the flow is written as plain Markdown:
+
+```text
+Open file / select code
+  ↓
+Status bar shows token estimate
+  ↓
+Click status bar / Command Palette
+  ↓
+Choose action (Compress / Diff / Keep)
+  ↓
+Context prepared + copied to clipboard
+  ↓
+Paste into Cursor Chat
 ```
 
 ## Install

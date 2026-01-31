@@ -31,6 +31,42 @@ flowchart TD
   E --> F["Paste into Cursor Chat"]
 ```
 
+## Install
+
+### Install (recommended): Run in dev mode
+
+```bash
+npm install
+npm run build
+```
+
+Then open the folder in Cursor/VS Code and press `F5` (**Extension Development Host**).
+
+### Install from VSIX (local install)
+
+```bash
+npm install
+npm run build
+npm run package
+```
+
+Then in Cursor/VS Code:
+
+- Extensions view → `...` menu → **Install from VSIX…**
+- Select `cursor-token-saver-0.1.0.vsix`
+
+## Uninstall
+
+### If installed via VSIX
+
+- Extensions view → search **Cursor Token Saver**
+- Gear icon → **Uninstall**
+- Reload/restart if prompted
+
+### If running via F5 (dev mode)
+
+- Close the **Extension Development Host** window (nothing is installed permanently)
+
 ## Development
 
 ```bash

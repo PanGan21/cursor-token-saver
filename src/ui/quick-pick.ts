@@ -27,7 +27,7 @@ export async function showActionsQuickPick(): Promise<void> {
     {
       title: "Cursor Token Saver",
       placeHolder: "Choose an action",
-    }
+    },
   );
 
   if (!picked) return;

@@ -21,7 +21,8 @@ export function getActiveContext(): ActiveContext | null {
   const fileName = filePath ? path.basename(filePath) : undefined;
 
   const workspaceFolder = vscode.workspace.getWorkspaceFolder(doc.uri);
-  const cwdForGit = workspaceFolder?.uri.fsPath ?? (filePath ? path.dirname(filePath) : process.cwd());
+  const cwdForGit =
+    workspaceFolder?.uri.fsPath ?? (filePath ? path.dirname(filePath) : process.cwd());
 
   return {
     editor,

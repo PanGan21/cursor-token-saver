@@ -4,7 +4,7 @@ import type { ExecFileSyncOptions } from "node:child_process";
 export type ExecFileSync = (
   file: string,
   args: readonly string[],
-  options: ExecFileSyncOptions & { encoding: "utf8" }
+  options: ExecFileSyncOptions & { encoding: "utf8" },
 ) => string;
 
 export type GitDiffResult =
@@ -22,7 +22,10 @@ export function getGitDiffForFile(params: {
 
   let repoRoot: string;
   try {
-    repoRoot = execFileSyncImpl("git", ["rev-parse", "--show-toplevel"], { cwd, encoding: "utf8" }).trim();
+    repoRoot = execFileSyncImpl("git", ["rev-parse", "--show-toplevel"], {
+      cwd,
+      encoding: "utf8",
+    }).trim();
     if (!repoRoot) return { kind: "no-repo" };
   } catch {
     return { kind: "no-repo" };
@@ -30,7 +33,10 @@ export function getGitDiffForFile(params: {
 
   const rel = path.relative(repoRoot, filePath);
   try {
-    const diff = execFileSyncImpl("git", ["diff", "--unified=3", "--", rel], { cwd: repoRoot, encoding: "utf8" });
+    const diff = execFileSyncImpl("git", ["diff", "--unified=3", "--", rel], {
+      cwd: repoRoot,
+      encoding: "utf8",
+    });
     if (!diff.trim()) return { kind: "no-changes" };
     return { kind: "ok", diff, repoRoot };
   } catch (e) {

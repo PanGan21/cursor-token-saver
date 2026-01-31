@@ -19,9 +19,7 @@ export function wrapForCursorChat(input: WrapInput): string {
   const title = input.title ?? "Cursor Context (Prepared)";
   const fileLine = input.fileName ? `\nFile: \`${input.fileName}\`\n` : "\n";
   const notesBlock =
-    input.notes.length > 0
-      ? `Notes:\n- ${input.notes.join("\n- ")}\n`
-      : "Notes:\n- (none)\n";
+    input.notes.length > 0 ? `Notes:\n- ${input.notes.join("\n- ")}\n` : "Notes:\n- (none)\n";
   const tokenLine = `Token estimate: ~${formatTokenCount(input.tokenEstimate.tokens)} (${input.tokenEstimate.model})`;
   const body = safeMd(input.content);
 

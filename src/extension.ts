@@ -10,6 +10,7 @@ import { TOKENS_DECISION_THRESHOLD, TOKENS_DANGER } from "./ui/constants";
 import { showActionsQuickPick } from "./ui/quick-pick";
 import { TokenMeterStatusBar } from "./ui/status-bar";
 import type { ExecFileSync } from "./core/git";
+import { UnsupportedLanguageError } from "./core/compress";
 
 let statusBar: TokenMeterStatusBar | undefined;
 
@@ -17,18 +18,25 @@ function showNoEditor(): void {
   void vscode.window.showWarningMessage("No active editor found.");
 }
 
-function copyPreparedResult(result: { preparedText: string; originalTokens: { tokens: number }; preparedTokens: { tokens: number } }): Thenable<void> {
+async function copyPreparedResult(result: {
+  preparedText: string;
+  originalTokens: { tokens: number };
+  preparedTokens: { tokens: number };
+}): Promise<void> {
   const from = formatTokenCount(result.originalTokens.tokens);
   const to = formatTokenCount(result.preparedTokens.tokens);
   const isHuge = result.preparedTokens.tokens >= TOKENS_DANGER;
 
-  return vscode.env.clipboard.writeText(result.preparedText).then(() => {
-    if (isHuge) {
-      void vscode.window.showWarningMessage(`Cursor context prepared (${from} → ${to}) and copied to clipboard. Large context may reduce answer quality.`);
-    } else {
-      void vscode.window.showInformationMessage(`Cursor context prepared (${from} → ${to}) and copied to clipboard.`);
-    }
-  });
+  await vscode.env.clipboard.writeText(result.preparedText);
+  if (isHuge) {
+    void vscode.window.showWarningMessage(
+      `Cursor context prepared (${from} → ${to}) and copied to clipboard. Large context may reduce answer quality.`,
+    );
+  } else {
+    void vscode.window.showInformationMessage(
+      `Cursor context prepared (${from} → ${to}) and copied to clipboard.`,
+    );
+  }
 }
 
 async function chooseLargeContextMode(tokens: number): Promise<PrepareMode | null> {
@@ -54,7 +62,7 @@ async function chooseLargeContextMode(tokens: number): Promise<PrepareMode | nul
     {
       title: "Prepare Context for Cursor AI",
       placeHolder: `This context is ~${pretty} tokens. How should Cursor see it?`,
-    }
+    },
   );
 
   return picked?.mode ?? null;
@@ -65,7 +73,8 @@ async function runPrepare(mode: PrepareMode, opts?: { forceAskOnLarge?: boolean 
   if (!ctx) return showNoEditor();
 
   const tokenEstimate = estimateCursorTokens(ctx.text);
-  const shouldAsk = opts?.forceAskOnLarge !== false && tokenEstimate.tokens >= TOKENS_DECISION_THRESHOLD;
+  const shouldAsk =
+    opts?.forceAskOnLarge !== false && tokenEstimate.tokens >= TOKENS_DECISION_THRESHOLD;
 
   let finalMode = mode;
   if (mode === "compress" && shouldAsk) {
@@ -89,10 +98,14 @@ async function runPrepare(mode: PrepareMode, opts?: { forceAskOnLarge?: boolean 
     });
 
     if (diffRes.kind === "no-repo") {
-      return void vscode.window.showWarningMessage("No git repository detected — diff mode unavailable.");
+      return void vscode.window.showWarningMessage(
+        "No git repository detected — diff mode unavailable.",
+      );
     }
     if (diffRes.kind === "no-changes") {
-      return void vscode.window.showInformationMessage("No git diff for this file (no unstaged changes).");
+      return void vscode.window.showInformationMessage(
+        "No git diff for this file (no unstaged changes).",
+      );
     }
     if (diffRes.kind === "error") {
       return void vscode.window.showErrorMessage(`Failed to get git diff: ${diffRes.message}`);
@@ -109,13 +122,25 @@ async function runPrepare(mode: PrepareMode, opts?: { forceAskOnLarge?: boolean 
     return;
   }
 
-  const result = prepareContextForAI({
-    text: ctx.text,
-    options: { mode: finalMode, languageId: ctx.languageId, fileName: ctx.fileName },
-  });
+  try {
+    const result = prepareContextForAI({
+      text: ctx.text,
+      options: { mode: finalMode, languageId: ctx.languageId, fileName: ctx.fileName },
+    });
 
-  await copyPreparedResult(result);
-  statusBar?.updateSoon();
+    await copyPreparedResult(result);
+    statusBar?.updateSoon();
+  } catch (err) {
+    if (err instanceof UnsupportedLanguageError) {
+      void vscode.window.showErrorMessage(
+        `Unsupported language "${err.languageId}". ` +
+          `No compression implementation is registered for it yet.`,
+      );
+      return;
+    }
+    const msg = err instanceof Error ? err.message : String(err);
+    void vscode.window.showErrorMessage(`Failed to prepare context: ${msg}`);
+  }
 }
 
 export function activate(context: vscode.ExtensionContext): void {
@@ -131,32 +156,32 @@ export function activate(context: vscode.ExtensionContext): void {
   context.subscriptions.push(
     vscode.window.onDidChangeActiveTextEditor(() => statusBar?.updateSoon()),
     vscode.window.onDidChangeTextEditorSelection(() => statusBar?.updateSoon()),
-    vscode.workspace.onDidChangeTextDocument(() => statusBar?.updateSoon())
+    vscode.workspace.onDidChangeTextDocument(() => statusBar?.updateSoon()),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("cursorTokenSaver.showQuickPick", async () => {
       await showActionsQuickPick();
-    })
+    }),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("cursorTokenSaver.prepareContextForAI", async () => {
       // Smart default: compress, but ask if huge.
       await runPrepare("compress");
-    })
+    }),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("cursorTokenSaver.compressSelectionForAI", async () => {
       await runPrepare("compress", { forceAskOnLarge: false });
-    })
+    }),
   );
 
   context.subscriptions.push(
     vscode.commands.registerCommand("cursorTokenSaver.copyDiffOnlyContext", async () => {
       await runPrepare("diff", { forceAskOnLarge: false });
-    })
+    }),
   );
 
   context.subscriptions.push(
@@ -164,8 +189,10 @@ export function activate(context: vscode.ExtensionContext): void {
       const ctx = getActiveContext();
       if (!ctx) return showNoEditor();
       const estimate = estimateCursorTokens(ctx.text);
-      await vscode.window.showInformationMessage(`Estimated tokens: ~${formatTokenCount(estimate.tokens)} (${estimate.model})`);
-    })
+      await vscode.window.showInformationMessage(
+        `Estimated tokens: ~${formatTokenCount(estimate.tokens)} (${estimate.model})`,
+      );
+    }),
   );
 }
 

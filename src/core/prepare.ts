@@ -1,5 +1,6 @@
 import type { PrepareOptions, PreparedContext } from "./types";
-import { compressForCursorAI } from "./compress";
+import { UnsupportedLanguageError } from "./compress";
+import { getLanguageSupport } from "./languages/registry";
 import { estimateCursorTokens } from "./tokens";
 import { wrapForCursorChat } from "./wrap";
 
@@ -18,9 +19,13 @@ export function prepareContextForAI(input: PrepareInputs): PreparedContext {
   let fenceLang = input.options.languageId || "txt";
 
   if (input.options.mode === "compress") {
-    const compressed = compressForCursorAI(originalText, input.options.languageId);
+    const support = getLanguageSupport(input.options.languageId);
+    if (!support) throw new UnsupportedLanguageError(input.options.languageId);
+
+    const compressed = support.compress(originalText);
     preparedContent = compressed.output;
     notes.push(...compressed.notes);
+    fenceLang = support.fenceLanguageId ?? fenceLang;
   } else if (input.options.mode === "diff") {
     if (!input.diffText) {
       throw new Error("Diff mode requested but no diff text was provided.");

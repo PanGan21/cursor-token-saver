@@ -1,26 +1,12 @@
-import { elideJsTsFunctionBodies } from "./js-elide";
+import type { CompressResult, LanguageSupport } from "./language-support";
+import { UnsupportedLanguageError } from "./language-support";
+import { getLanguageSupport } from "./languages/registry";
 
-export interface CompressResult {
-  output: string;
-  notes: string[];
-}
-
-const JS_TS_LANGUAGE_IDS = new Set([
-  "javascript",
-  "javascriptreact",
-  "typescript",
-  "typescriptreact",
-]);
+export type { CompressResult, LanguageSupport };
+export { UnsupportedLanguageError };
 
 export function compressForCursorAI(input: string, languageId: string): CompressResult {
-  if (!JS_TS_LANGUAGE_IDS.has(languageId)) {
-    return { output: input, notes: ["No compression applied (language not supported yet)"] };
-  }
-
-  const { output, didElide } = elideJsTsFunctionBodies(input);
-  if (didElide) {
-    return { output, notes: ["Function bodies removed"] };
-  }
-
-  return { output: input, notes: ["No compression applied (nothing obvious to elide)"] };
+  const support = getLanguageSupport(languageId);
+  if (!support) throw new UnsupportedLanguageError(languageId);
+  return support.compress(input);
 }

@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { estimateCursorTokens, formatTokenCount } from "../../core/tokens";
 import { elideJsTsFunctionBodies } from "../../core/js-elide";
 import { prepareContextForAI } from "../../core/prepare";
+import { UnsupportedLanguageError } from "../../core/compress";
 
 suite("core", () => {
   test("estimateCursorTokens is stable and non-negative", () => {
@@ -65,5 +66,16 @@ const f = () => {
     assert.ok(res.preparedText.includes("Notes:"));
     assert.ok(res.preparedText.includes("Token estimate: ~"));
     assert.ok(res.preparedText.includes("```typescript"));
+  });
+
+  test("prepareContextForAI throws on unsupported language in compress mode", () => {
+    assert.throws(
+      () =>
+        prepareContextForAI({
+          text: "print('hi')\n",
+          options: { mode: "compress", languageId: "python", fileName: "a.py" },
+        }),
+      (err: unknown) => err instanceof UnsupportedLanguageError && err.languageId === "python",
+    );
   });
 });

@@ -1,0 +1,8 @@
+node_modules/**
+.vscode/**
+src/**
+build/test/**
+prompt
+.gitignore
+tsconfig.json
+.eslintrc.json

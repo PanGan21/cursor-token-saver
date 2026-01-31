@@ -1,0 +1,60 @@
+{
+  "name": "cursor-token-saver",
+  "displayName": "Cursor Token Saver",
+  "description": "Prepare token-efficient context for Cursor AI (status bar meter + quick pick + clipboard output).",
+  "version": "0.1.0",
+  "publisher": "cursor-token-saver",
+  "license": "MIT",
+  "engines": {
+    "vscode": "1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./build/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "cursorTokenSaver.prepareContextForAI",
+        "title": "Cursor: Prepare Context for AI"
+      },
+      {
+        "command": "cursorTokenSaver.showQuickPick",
+        "title": "Cursor: Show Token Saver Actions"
+      },
+      {
+        "command": "cursorTokenSaver.compressSelectionForAI",
+        "title": "Cursor: Compress Selection for AI"
+      },
+      {
+        "command": "cursorTokenSaver.copyDiffOnlyContext",
+        "title": "Cursor: Copy Diff-Only Context"
+      },
+      {
+        "command": "cursorTokenSaver.estimateTokens",
+        "title": "Cursor: Estimate Tokens"
+      }
+    ]
+  },
+  "scripts": {
+    "build": "tsc -p .",
+    "watch": "tsc -watch -p .",
+    "lint": "eslint .",
+    "test": "npm run build && node ./build/test/run-tests.js",
+    "package": "npx --yes @vscode/vsce package"
+  },
+  "devDependencies": {
+    "@types/mocha": "10.0.6",
+    "@types/node": "22.10.5",
+    "@types/vscode": "1.85.0",
+    "@typescript-eslint/eslint-plugin": "8.54.0",
+    "@typescript-eslint/parser": "8.54.0",
+    "@vscode/test-electron": "2.4.0",
+    "eslint": "^9.39.2",
+    "mocha": "^10.8.2",
+    "typescript": "5.6.3"
+  }
+}

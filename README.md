@@ -1,5 +1,9 @@
 # Cursor Token Saver
 
+<p align="center">
+  <img src="images/icon.png" alt="Cursor Token Saver icon" width="128" height="128" />
+</p>
+
 Prepare **token-efficient context** for Cursor AI.
 
 Cursor does **not** currently allow extensions to intercept AI requests. This extension helps you **prepare better context before you ask Cursor** (manual copy/paste via clipboard).

@@ -5,6 +5,14 @@
   "version": "0.1.0",
   "publisher": "cursor-token-saver",
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/PanGan21/cursor-token-saver.git"
+  },
+  "bugs": {
+    "url": "https://github.com/PanGan21/cursor-token-saver/issues"
+  },
+  "homepage": "https://github.com/PanGan21/cursor-token-saver#readme",
   "engines": {
     "vscode": "1.85.0"
   },

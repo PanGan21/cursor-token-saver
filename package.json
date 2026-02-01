@@ -31,8 +31,20 @@
         "title": "Cursor: Prepare Context for AI"
       },
       {
+        "command": "cursorTokenSaver.copyPreparedContext",
+        "title": "Cursor: Copy Prepared Context"
+      },
+      {
+        "command": "cursorTokenSaver.copyRawPreparedContent",
+        "title": "Cursor: Copy Raw Prepared Content"
+      },
+      {
         "command": "cursorTokenSaver.prepareContextFromFiles",
         "title": "Cursor: Prepare Context from Files"
+      },
+      {
+        "command": "cursorTokenSaver.copyRawPreparedContentFromFiles",
+        "title": "Cursor: Copy Raw Prepared Content from Files"
       },
       {
         "command": "cursorTokenSaver.showQuickPick",

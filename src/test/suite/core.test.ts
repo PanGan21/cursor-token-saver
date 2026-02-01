@@ -63,6 +63,7 @@ const f = () => {
       options: { mode: "compress", languageId: "typescript", fileName: "a.ts" },
     });
 
+    assert.ok(res.preparedContent.includes("function x"));
     assert.ok(res.preparedText.includes("### Cursor Context (Prepared)"));
     assert.ok(res.preparedText.includes("Notes:"));
     assert.ok(res.preparedText.includes("Token estimate: ~"));

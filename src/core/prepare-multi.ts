@@ -23,6 +23,10 @@ export interface PrepareMultiResult {
   preparedTokens: TokenEstimate;
   notes: string[];
   preparedText: string;
+  /**
+   * Raw prepared content (no wrapper). Includes simple file separators.
+   */
+  preparedContent: string;
 }
 
 export function prepareContextFromFilesForAI(params: {
@@ -36,6 +40,7 @@ export function prepareContextFromFilesForAI(params: {
       preparedTokens: estimateCursorTokens(""),
       notes: ["No files selected"],
       preparedText: "### Cursor Context (Prepared)\n\nNotes:\n- No files selected\n",
+      preparedContent: "",
     };
   }
 
@@ -79,7 +84,14 @@ export function prepareContextFromFilesForAI(params: {
     tokenEstimate: preparedTokens,
   });
 
-  return { originalTokens, preparedTokens, notes, preparedText };
+  const preparedContent = sections
+    .map((s) => {
+      const content = safeMd(s.content);
+      return `--- ${s.fileName} (${s.languageId}) ---\n${content}\n`;
+    })
+    .join("\n");
+
+  return { originalTokens, preparedTokens, notes, preparedText, preparedContent };
 }
 
 function safeMd(text: string): string {

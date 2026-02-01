@@ -52,6 +52,7 @@ export function prepareContextForAI(input: PrepareInputs): PreparedContext {
   return {
     mode: input.options.mode,
     originalText,
+    preparedContent,
     preparedText,
     originalTokens,
     preparedTokens,

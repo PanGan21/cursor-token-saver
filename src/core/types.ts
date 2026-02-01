@@ -11,6 +11,11 @@ export interface TokenEstimate {
 export interface PreparedContext {
   mode: PrepareMode;
   originalText: string;
+  /**
+   * The raw prepared content (no wrapper), e.g. compressed code or git diff.
+   * This is what powers "Copy raw prepared content".
+   */
+  preparedContent: string;
   preparedText: string;
   originalTokens: TokenEstimate;
   preparedTokens: TokenEstimate;

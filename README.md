@@ -102,7 +102,7 @@ Add a new language by implementing `LanguageSupport` (`src/core/language-support
 
 In **compress mode**, unsupported languages throw `UnsupportedLanguageError` (so adding JSON and other formats later stays clean).
 
-Currently registered: **JavaScript/TypeScript** and **Rust**.
+Currently registered: **JavaScript/TypeScript**, **Rust** and **Markdown**.
 
 ## License
 

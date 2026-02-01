@@ -78,4 +78,22 @@ const f = () => {
       (err: unknown) => err instanceof UnsupportedLanguageError && err.languageId === "python",
     );
   });
+
+  test("prepareContextForAI supports rust in compress mode", () => {
+    const input = `
+fn add(a: i32, b: i32) -> i32 {
+    let s = "{ not a brace }";
+    // comment
+    println!("{}", a + b);
+    a + b
+}
+`;
+    const res = prepareContextForAI({
+      text: input,
+      options: { mode: "compress", languageId: "rust", fileName: "lib.rs" },
+    });
+    assert.ok(res.preparedText.includes("```rust"));
+    assert.ok(res.preparedText.includes("implementation omitted"));
+    assert.ok(!res.preparedText.includes("println!"));
+  });
 });

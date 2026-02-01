@@ -31,6 +31,10 @@
         "title": "Cursor: Prepare Context for AI"
       },
       {
+        "command": "cursorTokenSaver.prepareContextFromFiles",
+        "title": "Cursor: Prepare Context from Files"
+      },
+      {
         "command": "cursorTokenSaver.showQuickPick",
         "title": "Cursor: Show Token Saver Actions"
       },

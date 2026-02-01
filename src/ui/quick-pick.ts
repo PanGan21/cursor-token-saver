@@ -9,6 +9,11 @@ export async function showActionsQuickPick(): Promise<void> {
         command: "cursorTokenSaver.prepareContextForAI",
       },
       {
+        label: "Prepare Context from Files",
+        description: "Pick multiple files and copy combined context",
+        command: "cursorTokenSaver.prepareContextFromFiles",
+      },
+      {
         label: "Compress Selection for AI",
         description: "Remove JS/TS implementations (heuristic)",
         command: "cursorTokenSaver.compressSelectionForAI",

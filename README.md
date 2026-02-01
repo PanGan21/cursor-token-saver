@@ -16,6 +16,7 @@ Prepare **token-efficient context** for Cursor AI: see token estimates, compress
 - **Status bar**: click `Cursor: …`
 - **Command palette**:
   - `Cursor: Prepare Context for AI` (asks only when context is large)
+  - `Cursor: Prepare Context from Files` (pick multiple files)
   - `Cursor: Compress Selection for AI`
   - `Cursor: Copy Diff-Only Context`
   - `Cursor: Estimate Tokens`
@@ -39,7 +40,7 @@ Paste into Cursor Chat
 - **Try it (recommended)**: open this repo in Cursor/VS Code and press `F5` (Extension Development Host).
 - **Install from VSIX**:
   - `npm install && npm run build && npm run package`
-  - Extensions view → `...` → **Install from VSIX…** → select `cursor-token-saver-0.1.0.vsix`
+  - Extensions view → `...` → **Install from VSIX…** → select `cursor-token-saver-*.vsix`
 - **Uninstall**: Extensions view → search **Cursor Token Saver** → gear icon → **Uninstall**
 
 ## Development

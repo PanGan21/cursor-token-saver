@@ -5,12 +5,14 @@ import { getActiveContext } from "./commands/active-context";
 import { estimateCursorTokens, formatTokenCount } from "./core/tokens";
 import { getGitDiffForFile } from "./core/git";
 import { prepareContextForAI } from "./core/prepare";
+import { prepareContextFromFilesForAI } from "./core/prepare-multi";
 import type { PrepareMode } from "./core/types";
 import { TOKENS_DECISION_THRESHOLD, TOKENS_DANGER } from "./ui/constants";
 import { showActionsQuickPick } from "./ui/quick-pick";
 import { TokenMeterStatusBar } from "./ui/status-bar";
 import type { ExecFileSync } from "./core/git";
 import { UnsupportedLanguageError } from "./core/compress";
+import { getLanguageSupport, listSupportedLanguageIds } from "./core/languages/registry";
 
 let statusBar: TokenMeterStatusBar | undefined;
 
@@ -169,6 +171,69 @@ export function activate(context: vscode.ExtensionContext): void {
     vscode.commands.registerCommand("cursorTokenSaver.prepareContextForAI", async () => {
       // Smart default: compress, but ask if huge.
       await runPrepare("compress");
+    }),
+  );
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand("cursorTokenSaver.prepareContextFromFiles", async () => {
+      if (!vscode.workspace.workspaceFolders || vscode.workspace.workspaceFolders.length === 0) {
+        void vscode.window.showWarningMessage("Open a folder/workspace to pick files.");
+        return;
+      }
+
+      const uris = await vscode.workspace.findFiles(
+        "**/*",
+        "**/{node_modules,build,dist,out,.vscode-test}/**",
+        5000,
+      );
+
+      if (uris.length === 0) {
+        void vscode.window.showInformationMessage("No files found in this workspace.");
+        return;
+      }
+
+      const items = uris.map((uri) => {
+        const rel = vscode.workspace.asRelativePath(uri, false);
+        return {
+          label: rel,
+          description: uri.fsPath,
+          uri,
+        };
+      });
+
+      const picked = await vscode.window.showQuickPick(items, {
+        canPickMany: true,
+        title: "Prepare Context from Files",
+        placeHolder: "Select one or more files to include",
+        matchOnDescription: false,
+      });
+
+      if (!picked || picked.length === 0) return;
+
+      // Load documents and prepare sections.
+      const docs = await Promise.all(picked.map((p) => vscode.workspace.openTextDocument(p.uri)));
+      const files = docs.map((doc) => ({
+        fileName: vscode.workspace.asRelativePath(doc.uri, false),
+        languageId: doc.languageId,
+        text: doc.getText(),
+      }));
+
+      // Pre-check support to provide a better error message.
+      const unsupported = files
+        .filter((f) => !getLanguageSupport(f.languageId))
+        .map((f) => `${f.fileName} (${f.languageId})`);
+
+      if (unsupported.length > 0) {
+        const supported = listSupportedLanguageIds().join(", ");
+        void vscode.window.showErrorMessage(
+          `Unsupported language(s) in selection:\n- ${unsupported.join("\n- ")}\n\nSupported: ${supported}`,
+        );
+        return;
+      }
+
+      const result = prepareContextFromFilesForAI({ files, mode: "compress" });
+      await copyPreparedResult(result);
+      statusBar?.updateSoon();
     }),
   );
 

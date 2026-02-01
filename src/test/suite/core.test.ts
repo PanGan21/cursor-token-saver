@@ -3,6 +3,7 @@ import assert from "node:assert";
 import { estimateCursorTokens, formatTokenCount } from "../../core/tokens";
 import { elideJsTsFunctionBodies } from "../../core/js-elide";
 import { prepareContextForAI } from "../../core/prepare";
+import { prepareContextFromFilesForAI } from "../../core/prepare-multi";
 import { UnsupportedLanguageError } from "../../core/compress";
 
 suite("core", () => {
@@ -95,5 +96,30 @@ fn add(a: i32, b: i32) -> i32 {
     assert.ok(res.preparedText.includes("```rust"));
     assert.ok(res.preparedText.includes("implementation omitted"));
     assert.ok(!res.preparedText.includes("println!"));
+  });
+
+  test("prepareContextFromFilesForAI combines multiple files", () => {
+    const res = prepareContextFromFilesForAI({
+      mode: "compress",
+      files: [
+        {
+          fileName: "a.ts",
+          languageId: "typescript",
+          text: `export function x(){\n  return 1;\n}\n`,
+        },
+        {
+          fileName: "lib.rs",
+          languageId: "rust",
+          text: `fn f() {\n    // make body non-trivial so elision triggers\n    let mut sum = 0;\n    for i in 0..100 {\n        sum += i;\n    }\n    println!(\"sum={}\", sum);\n    let long = \"abcdefghijklmnopqrstuvwxyz0123456789\";\n    println!(\"{}\", long);\n}\n`,
+        },
+      ],
+    });
+
+    assert.ok(res.preparedText.includes("Files: 2"));
+    assert.ok(res.preparedText.includes("File: `a.ts`"));
+    assert.ok(res.preparedText.includes("```typescript"));
+    assert.ok(res.preparedText.includes("File: `lib.rs`"));
+    assert.ok(res.preparedText.includes("```rust"));
+    assert.ok(res.preparedText.includes("implementation omitted"));
   });
 });

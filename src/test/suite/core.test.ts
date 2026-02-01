@@ -70,6 +70,27 @@ const f = () => {
     assert.ok(res.preparedText.includes("```typescript"));
   });
 
+  test("prepareContextForAI supports markdown and uses a safe outer fence", () => {
+    const input =
+      `# Title\n\n` +
+      `Here is a code fence:\n\n` +
+      "```ts\n" +
+      "export function x() { return 1; }\n" +
+      "```\n";
+
+    const res = prepareContextForAI({
+      text: input,
+      options: { mode: "compress", languageId: "markdown", fileName: "README.md" },
+    });
+
+    // Markdown is supported (no UnsupportedLanguageError).
+    assert.ok(res.preparedText.includes("File: `README.md`"));
+    // Because content contains ``` already, the wrapper should use 4+ backticks for the outer fence.
+    assert.ok(res.preparedText.includes("````markdown"));
+    // And we should be able to see the original inner fence still present.
+    assert.ok(res.preparedText.includes("```ts"));
+  });
+
   test("prepareContextForAI throws on unsupported language in compress mode", () => {
     assert.throws(
       () =>

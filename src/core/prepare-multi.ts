@@ -3,6 +3,7 @@ import { estimateCursorTokens } from "./tokens";
 import { getLanguageSupport } from "./languages/registry";
 import type { TokenEstimate } from "./types";
 import { formatTokenCount } from "./tokens";
+import { buildFencedBlock } from "./wrap";
 
 export interface FileInput {
   fileName: string;
@@ -116,7 +117,7 @@ function wrapManyForCursorChat(params: {
       return (
         `#### File: \`${s.fileName}\` (\`${s.languageId}\`)\n\n` +
         `Section notes:\n${sectionNotes}\n` +
-        `\`\`\`${s.fenceLanguageId}\n${content}\n\`\`\`\n`
+        buildFencedBlock(s.fenceLanguageId, content)
       );
     })
     .join("\n");

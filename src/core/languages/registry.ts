@@ -1,8 +1,13 @@
 import type { LanguageSupport } from "../language-support";
 import { javascriptTypescriptSupport } from "./javascript-typescript";
+import { markdownSupport } from "./markdown";
 import { rustSupport } from "./rust";
 
-const ALL_SUPPORTS: readonly LanguageSupport[] = [javascriptTypescriptSupport, rustSupport];
+const ALL_SUPPORTS: readonly LanguageSupport[] = [
+  javascriptTypescriptSupport,
+  rustSupport,
+  markdownSupport,
+];
 
 export function getLanguageSupport(languageId: string): LanguageSupport | undefined {
   return ALL_SUPPORTS.find((s) => s.vscodeLanguageIds.includes(languageId));
